@@ -32,8 +32,6 @@ async function runSalesBot() {
       )}`
     )
 
-    const currentNearPrice = await price.getNear()
-
     // get collection sales activites
     const response = await axios
       .get(
@@ -46,6 +44,8 @@ async function runSalesBot() {
 
     // check if status was success
     if (response.status === 1) {
+      const currentNearPrice = await price.getNear()
+
       const saleData = response.data
 
       cache.set('lastSaleTime', saleData[0].issued_at)
