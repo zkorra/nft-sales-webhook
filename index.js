@@ -25,6 +25,8 @@ async function runSalesBot() {
       cache.get('lastSaleTime', null) ||
       dayjs().startOf('minute').subtract(59, 'seconds').valueOf()
 
+    let activities
+
     console.log(
       `Last sale in Unix timestamp (seconds): ${cache.get(
         'lastSaleTime',
@@ -33,25 +35,31 @@ async function runSalesBot() {
     )
 
     // get collection sales activites
-    const response = await axios
-      .get(
-        `https://api-v2-mainnet.paras.id/collection-activities?collection_id=${process.env.COLLECTION_ID}&filter=sale`
-      )
-      .then((response) => response.data)
-      .catch((error) => {
-        console.log(error)
-      })
+    try {
+      activities = await axios
+        .get(
+          `https://api-v2-mainnet.paras.id/collection-activities?collection_id=${process.env.COLLECTION_ID}&filter=sale`
+        )
+        .then((response) => response.data)
+    } catch (err) {
+      console.log('error fetching activities: ', err)
+    }
 
     // check if status was success
-    if (response.status === 1) {
-      const currentNearPrice = await price.getNear()
+    if (activities && activities.status === 1) {
+      let currentNearPrice = 0
+      try {
+        currentNearPrice = await price.getNear()
+      } catch (err) {
+        console.log('error fetching NEAR price: ', err)
+      }
 
-      const saleData = response.data
+      const allSaleData = activities.data
 
-      cache.set('lastSaleTime', saleData[0].issued_at)
+      cache.set('lastSaleTime', allSaleData[0].issued_at)
 
       const recentSaleData = _.filter(
-        saleData,
+        allSaleData,
         (activity) => activity.issued_at > lastSaleTime
       )
 
@@ -61,29 +69,33 @@ async function runSalesBot() {
         const sortedSaleData = _.orderBy(recentSaleData, 'issued_at', 'asc')
 
         for (const sale of sortedSaleData) {
-          const metadata = sale.data[0].metadata
-          const msg = sale.msg
+          try {
+            const metadata = sale.data[0].metadata
+            const msg = sale.msg
 
-          const title = metadata.title
-          const imageURL = metadata.media
+            const title = metadata.title
+            const imageURL = metadata.media
 
-          const datetime = msg.datetime
-          const seller = truncate(msg.params.owner_id)
-          const buyer = truncate(msg.params.buyer_id)
-          const price = Big(msg.params.price)
-            .div(10 ** 24)
-            .toFixed()
-          const priceUSD = price * currentNearPrice
+            const datetime = msg.datetime
+            const seller = truncate(msg.params.owner_id)
+            const buyer = truncate(msg.params.buyer_id)
+            const price = Big(msg.params.price)
+              .div(10 ** 24)
+              .toFixed()
+            const priceUSD = price * currentNearPrice
 
-          await postSaleToDiscord(
-            title,
-            seller,
-            buyer,
-            price,
-            priceUSD.toFixed(2),
-            imageURL,
-            datetime
-          )
+            await postSaleToDiscord(
+              title,
+              seller,
+              buyer,
+              price,
+              priceUSD.toFixed(2),
+              imageURL,
+              datetime
+            )
+          } catch (err) {
+            console.log('error while going through sales data: ', err)
+          }
         }
       }
     }
