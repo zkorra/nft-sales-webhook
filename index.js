@@ -115,6 +115,7 @@ async function postSaleToDiscord(
     .post(process.env.WEBHOOK_URL, {
       embeds: [
         {
+          color: 16568858,
           title: `${title} → SOLD`,
           fields: [
             {
@@ -142,23 +143,7 @@ async function postSaleToDiscord(
         },
       ],
     })
-    .then(await delay(1000))
+    .then(await delay(1500))
 }
-
-// function truncate(
-//   fullStr,
-//   strLen = 12,
-//   separator = '...',
-//   frontChars = 5,
-//   backChars = 6
-// ) {
-//   if (fullStr.length <= strLen) return fullStr
-
-//   return (
-//     fullStr.substr(0, frontChars) +
-//     separator +
-//     fullStr.substr(fullStr.length - backChars)
-//   )
-// }
 
 runSalesBot()
