@@ -124,7 +124,7 @@ async function postSaleToDiscord(
             },
             {
               name: 'Seller',
-              value: `${seller}`,
+              value: `||${seller}||`,
               inline: true,
             },
             {
