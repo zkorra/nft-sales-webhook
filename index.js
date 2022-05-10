@@ -122,11 +122,11 @@ async function postSaleToDiscord(
               name: 'Sale Price',
               value: `${price} NEAR \`($${priceUSD} USD)\``,
             },
-            {
-              name: 'Seller',
-              value: `||${seller}||`,
-              inline: true,
-            },
+            // {
+            //   name: 'Seller',
+            //   value: `||${seller}||`,
+            //   inline: true,
+            // },
             {
               name: 'Buyer',
               value: `${buyer}`,
