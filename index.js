@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const Big = require('big.js')
 const cache = require('./cache')
 const price = require('./price')
+const rankList = require('./data/rank.json')
 
 function delay(ms) {
   return new Promise((resolve) => {
@@ -84,12 +85,16 @@ async function runSalesBot() {
               .toFixed()
             const priceUSD = price * currentNearPrice
 
+            const tokenId = parseInt(msg.params.token_id)
+            const rank = rankList[tokenId].rank
+
             await postSaleToDiscord(
               title,
               seller,
               buyer,
               price,
               priceUSD.toFixed(2),
+              rank,
               imageURL,
               datetime
             )
@@ -108,6 +113,7 @@ async function postSaleToDiscord(
   buyer,
   price,
   priceUSD,
+  rank,
   imageURL,
   date
 ) {
@@ -130,7 +136,10 @@ async function postSaleToDiscord(
             {
               name: 'Buyer',
               value: `${buyer}`,
-              inline: true,
+            },
+            {
+              name: 'Rank',
+              value: `${rank}`,
             },
           ],
           image: {
