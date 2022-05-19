@@ -73,6 +73,7 @@ async function runSalesBot() {
           try {
             const metadata = sale.data[0].metadata
             const msg = sale.msg
+            const transactionHash = sale.transaction_hash
 
             const title = metadata.title
             const imageURL = metadata.media
@@ -95,6 +96,7 @@ async function runSalesBot() {
               price,
               priceUSD.toFixed(2),
               rank,
+              transactionHash,
               imageURL,
               datetime
             )
@@ -114,6 +116,7 @@ async function postSaleToDiscord(
   price,
   priceUSD,
   rank,
+  transactionHash,
   imageURL,
   date
 ) {
@@ -134,12 +137,18 @@ async function postSaleToDiscord(
             //   inline: true,
             // },
             {
-              name: 'Buyer',
-              value: `${buyer}`,
-            },
-            {
               name: 'Rank',
               value: `${rank}`,
+              inline: true,
+            },
+            {
+              name: 'Buyer',
+              value: `${buyer}`,
+              inline: true,
+            },
+            {
+              name: 'Transaction',
+              value: `[${transactionHash}](https://nearblocks.io/txns/${transactionHash})`,
             },
           ],
           image: {
