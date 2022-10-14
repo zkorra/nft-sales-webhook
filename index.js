@@ -106,7 +106,7 @@ async function runSalesBot() {
         }
       }
     }
-  }, 60000)
+  }, 300000)
 }
 
 async function postSaleToDiscord(
