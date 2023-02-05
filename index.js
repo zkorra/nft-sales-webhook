@@ -6,17 +6,8 @@ const dayjs = require('dayjs')
 const Big = require('big.js')
 const cache = require('./cache')
 const price = require('./price')
+const utils = require('./utils')
 const rankList = require('./data/rank.json')
-
-function delay(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
-function truncate(string, limit = 14) {
-  return string.length > limit ? `${string.substr(0, limit)}...` : string
-}
 
 async function runSalesBot() {
   console.log(`starting ${process.env.COLLECTION_ID} sales bot...`)
@@ -50,7 +41,7 @@ async function runSalesBot() {
     if (activities && activities.status === 1) {
       let currentNearPrice = 0
       try {
-        currentNearPrice = await price.getNear()
+        currentNearPrice = await price.getNearUsd()
       } catch (err) {
         console.log('error fetching NEAR price: ', err)
       }
@@ -73,14 +64,13 @@ async function runSalesBot() {
           try {
             const metadata = sale.data[0].metadata
             const msg = sale.msg
-            // const transactionHash = sale.transaction_hash
 
             const title = metadata.title
             const imageURL = metadata.media
 
             const datetime = msg.datetime
-            const seller = truncate(msg.params.owner_id)
-            const buyer = truncate(msg.params.buyer_id)
+            const seller = utils.truncate(msg.params.owner_id)
+            const buyer = utils.truncate(msg.params.buyer_id)
             const price = Big(msg.params.price)
               .div(10 ** 24)
               .toFixed()
@@ -96,7 +86,6 @@ async function runSalesBot() {
               price,
               priceUSD.toFixed(2),
               rank,
-              // transactionHash,
               imageURL,
               datetime
             )
@@ -116,7 +105,6 @@ async function postSaleToDiscord(
   price,
   priceUSD,
   rank,
-  // transactionHash,
   imageURL,
   date
 ) {
@@ -146,10 +134,6 @@ async function postSaleToDiscord(
               value: `${buyer}`,
               inline: true,
             },
-            // {
-            //   name: 'Transaction',
-            //   value: `[${transactionHash}](https://nearblocks.io/txns/${transactionHash})`,
-            // },
           ],
           image: {
             url: `${imageURL}`,
@@ -161,7 +145,7 @@ async function postSaleToDiscord(
         },
       ],
     })
-    .then(await delay(1500))
+    .then(await utils.delay(1500))
 }
 
 runSalesBot()

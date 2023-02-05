@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-function getNear() {
+function getNearUsd() {
   return axios
     .get(
       'https://api.coingecko.com/api/v3/simple/price?ids=near&vs_currencies=usd'
@@ -9,5 +9,5 @@ function getNear() {
 }
 
 module.exports = {
-  getNear: getNear,
+  getNearUsd: getNearUsd,
 }
