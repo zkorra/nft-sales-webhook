@@ -1,13 +1,9 @@
-function get(key) {
-  return this.cache[key]
+const cache = {}
+
+export function getCache(key) {
+  return cache[key]
 }
 
-function set(key, val) {
-  this.cache[key] = val
-}
-
-module.exports = {
-  cache: {},
-  get: get,
-  set: set,
+export function setCache(key, value) {
+  cache[key] = value
 }
